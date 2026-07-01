@@ -1,0 +1,126 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Barra lateral ── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--marca-cafe);
+  color: #f3ead9;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0.9rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.6rem 1.4rem;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--marca-terracota);
+  color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+}
+
+.brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  color: #e9dcc6;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.15s ease;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-item.active {
+  background: var(--marca-terracota);
+  color: #fff;
+  font-weight: 600;
+}
+
+.nav-item i {
+  font-size: 1.05rem;
+}
+
+/* ── Zona principal ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  height: 66px;
+  background: #fff;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--marca-crema);
+  color: var(--marca-cafe);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.user-meta small {
+  color: #8a7d6f;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.content {
+  flex: 1;
+  padding: 1.75rem;
+  overflow: auto;
+}

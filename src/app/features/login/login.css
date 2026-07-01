@@ -1,0 +1,73 @@
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(1200px 600px at 70% -10%, #efe3d2 0%, transparent 60%),
+    var(--marca-fondo);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 18px;
+  padding: 2.25rem;
+  box-shadow: 0 20px 45px rgba(75, 52, 30, 0.12);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+}
+
+.login-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--marca-cafe);
+  color: var(--marca-crema);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+.login-brand h1 {
+  font-size: 1.55rem;
+  line-height: 1.1;
+}
+
+.login-brand p {
+  margin: 0.15rem 0 0;
+  color: #7a6f64;
+  font-size: 0.9rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.login-form input {
+  width: 100%;
+}
+
+.w-full {
+  width: 100%;
+}

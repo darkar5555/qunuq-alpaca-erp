@@ -1,0 +1,44 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">QA</span>
+      <span class="brand-name">Qunuq Alpaca</span>
+    </div>
+
+    <nav class="nav">
+      @for (item of menu; track item.link) {
+        <a
+          [routerLink]="item.link"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-user">
+        <div class="avatar">{{ (usuario()?.nombre ?? '?')[0] }}</div>
+        <div class="user-meta">
+          <strong>{{ usuario()?.nombre }}</strong>
+          <small>{{ usuario()?.rol }}</small>
+        </div>
+      </div>
+      <p-button
+        label="Salir"
+        icon="pi pi-sign-out"
+        severity="secondary"
+        [text]="true"
+        (onClick)="logout()"
+      />
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

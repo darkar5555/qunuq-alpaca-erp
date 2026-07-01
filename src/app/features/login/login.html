@@ -1,0 +1,48 @@
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="login-mark">QA</span>
+      <div>
+        <h1>Qunuq Alpaca</h1>
+        <p>Panel de gestión · ERP</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <label>
+        <span>Correo</span>
+        <input
+          pInputText
+          type="email"
+          formControlName="email"
+          placeholder="tucorreo@qunuqalpaca.com"
+          autocomplete="username"
+        />
+      </label>
+
+      <label>
+        <span>Contraseña</span>
+        <p-password
+          formControlName="password"
+          [feedback]="false"
+          [toggleMask]="true"
+          placeholder="••••••••"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          autocomplete="current-password"
+        />
+      </label>
+
+      @if (error()) {
+        <p-message severity="error" [text]="error()!" />
+      }
+
+      <p-button
+        type="submit"
+        label="Ingresar"
+        [loading]="cargando()"
+        styleClass="w-full"
+      />
+    </form>
+  </div>
+</div>
