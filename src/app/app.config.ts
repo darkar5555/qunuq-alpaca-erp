@@ -5,6 +5,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { definePreset } from '@primeng/themes';
 import Aura from '@primeng/themes/aura';
 
@@ -42,5 +43,8 @@ export const appConfig: ApplicationConfig = {
         options: { darkModeSelector: '.app-dark' },
       },
     }),
+    // Servicios de UI compartidos (avisos y confirmaciones).
+    MessageService,
+    ConfirmationService,
   ],
 };

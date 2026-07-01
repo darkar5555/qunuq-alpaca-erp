@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../core/auth.service';
 
 interface ItemMenu {
@@ -11,7 +13,14 @@ interface ItemMenu {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ButtonModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ButtonModule,
+    ToastModule,
+    ConfirmDialogModule,
+  ],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })

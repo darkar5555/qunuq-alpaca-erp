@@ -1,0 +1,149 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-subtitle">Gestiona los clientes del taller.</p>
+  </div>
+  @if (puedeEditar) {
+    <p-button
+      label="Nuevo cliente"
+      icon="pi pi-plus"
+      (onClick)="abrirNuevo()"
+    />
+  }
+</div>
+
+<p-table
+  [value]="clientes()"
+  [loading]="cargando()"
+  [paginator]="clientes().length > 10"
+  [rows]="10"
+  [rowHover]="true"
+  styleClass="p-datatable-sm card-table"
+  [globalFilterFields]="['nombreORazonSocial', 'numeroDocumento']"
+>
+  <ng-template #header>
+    <tr>
+      <th>Documento</th>
+      <th>Nombre / Razón social</th>
+      <th>Contacto</th>
+      <th style="width: 8rem"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-c>
+    <tr>
+      <td>
+        <p-tag
+          [value]="c.tipoDocumento"
+          [severity]="c.tipoDocumento === 'RUC' ? 'info' : 'secondary'"
+        />
+        <span class="doc-num">{{ c.numeroDocumento }}</span>
+      </td>
+      <td>{{ c.nombreORazonSocial }}</td>
+      <td>
+        <div class="contacto">
+          @if (c.email) {
+            <span><i class="pi pi-envelope"></i> {{ c.email }}</span>
+          }
+          @if (c.telefono) {
+            <span><i class="pi pi-phone"></i> {{ c.telefono }}</span>
+          }
+          @if (!c.email && !c.telefono) {
+            <span class="vacio">—</span>
+          }
+        </div>
+      </td>
+      <td>
+        <div class="acciones">
+          @if (puedeEditar) {
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              (onClick)="abrirEditar(c)"
+            />
+          }
+          @if (puedeEliminar) {
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+              (onClick)="confirmarEliminar(c)"
+            />
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="4" class="vacio-tabla">Aún no hay clientes registrados.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Formulario crear/editar -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-grid">
+    <div class="campo campo-doc">
+      <label>Tipo</label>
+      <p-select
+        formControlName="tipoDocumento"
+        [options]="tiposDocumento"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="campo campo-num">
+      <label>N° de documento <small>({{ ayudaDocumento() }})</small></label>
+      <input pInputText formControlName="numeroDocumento" inputmode="numeric" />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Nombre / Razón social</label>
+      <input pInputText formControlName="nombreORazonSocial" />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Correo <small>(opcional)</small></label>
+      <input pInputText type="email" formControlName="email" />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Teléfono <small>(opcional)</small></label>
+      <input pInputText formControlName="telefono" />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Dirección <small>(opcional)</small></label>
+      <input pInputText formControlName="direccion" />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="dialogVisible.set(false)"
+    />
+    <p-button
+      label="Guardar"
+      icon="pi pi-check"
+      [loading]="guardando()"
+      (onClick)="guardar()"
+    />
+  </ng-template>
+</p-dialog>
