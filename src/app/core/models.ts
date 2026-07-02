@@ -83,3 +83,50 @@ export interface Color {
 }
 
 export type TipoCatalogo = 'fibra' | 'color' | 'tecnica';
+
+// ── Pedidos ──
+export type EstadoPedido =
+  | 'COTIZACION'
+  | 'MUESTRA'
+  | 'PRODUCCION'
+  | 'ENTREGADO';
+
+export interface PedidoItem {
+  id: string;
+  cantidad: string;
+  precioUnitario: string;
+  subtotal: string;
+  producto: Producto;
+  fibra: Fibra | null;
+  color: Color | null;
+  tecnica: Tecnica | null;
+}
+
+export interface Pedido {
+  id: string;
+  codigo: string;
+  clienteId: string;
+  fecha: string;
+  estado: EstadoPedido;
+  subtotal: string;
+  igv: string;
+  total: string;
+  notas: string | null;
+  cliente: Cliente;
+  items: PedidoItem[];
+}
+
+export interface PedidoItemInput {
+  productoId: string;
+  fibraId?: string;
+  colorId?: string;
+  tecnicaId?: string;
+  cantidad: number;
+  precioUnitario?: number;
+}
+
+export interface PedidoInput {
+  clienteId: string;
+  notas?: string;
+  items: PedidoItemInput[];
+}

@@ -1,0 +1,315 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Pedidos</h1>
+    <p class="page-subtitle">Cotizaciones y pedidos del taller.</p>
+  </div>
+  @if (puedeCrear) {
+    <p-button label="Nuevo pedido" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  }
+</div>
+
+<div class="toolbar">
+  <p-select
+    [ngModel]="filtroEstado()"
+    (onChange)="cambiarFiltro($event.value)"
+    [options]="opcionesFiltro"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filtrar por estado"
+  />
+</div>
+
+<p-table
+  [value]="pedidos()"
+  [loading]="cargando()"
+  [paginator]="pedidos().length > 10"
+  [rows]="10"
+  [rowHover]="true"
+  styleClass="p-datatable-sm card-table"
+>
+  <ng-template #header>
+    <tr>
+      <th>Código</th>
+      <th>Cliente</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+      <th class="col-precio">Total</th>
+      <th style="width: 5rem"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-p>
+    <tr>
+      <td><strong>{{ p.codigo }}</strong></td>
+      <td>{{ p.cliente.nombreORazonSocial }}</td>
+      <td>{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
+      <td>
+        <p-tag
+          [value]="etiquetaEstado(p.estado)"
+          [severity]="severidadEstado(p.estado)"
+        />
+      </td>
+      <td class="col-precio">{{ p.total | currency: 'PEN' : 'S/ ' }}</td>
+      <td>
+        <p-button
+          icon="pi pi-eye"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          pTooltip="Ver detalle"
+          (onClick)="verDetalle(p)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="vacio-tabla">No hay pedidos para mostrar.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- ── Crear pedido ── -->
+<p-dialog
+  header="Nuevo pedido"
+  [visible]="crearVisible()"
+  (visibleChange)="crearVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '52rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" class="crear-form">
+    <div class="campo">
+      <label>Cliente</label>
+      <p-select
+        formControlName="clienteId"
+        [options]="clienteOpciones()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        placeholder="Selecciona un cliente"
+        appendTo="body"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="items-head">
+      <span>Ítems del pedido</span>
+      <p-button
+        label="Agregar ítem"
+        icon="pi pi-plus"
+        size="small"
+        [text]="true"
+        (onClick)="agregarItem()"
+      />
+    </div>
+
+    <div formArrayName="items" class="items-lista">
+      @for (grupo of items.controls; track $index; let i = $index) {
+        <div [formGroupName]="i" class="item-row">
+          <div class="celda producto">
+            <label>Producto</label>
+            <p-select
+              formControlName="productoId"
+              [options]="productoOpciones()"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              placeholder="Producto"
+              appendTo="body"
+              (onChange)="onProductoChange(i)"
+            />
+          </div>
+          <div class="celda">
+            <label>Fibra</label>
+            <p-select
+              formControlName="fibraId"
+              [options]="fibras()"
+              optionLabel="nombre"
+              optionValue="id"
+              [showClear]="true"
+              placeholder="—"
+              appendTo="body"
+            />
+          </div>
+          <div class="celda">
+            <label>Color</label>
+            <p-select
+              formControlName="colorId"
+              [options]="colores()"
+              optionLabel="nombre"
+              optionValue="id"
+              [showClear]="true"
+              placeholder="—"
+              appendTo="body"
+            />
+          </div>
+          <div class="celda">
+            <label>Técnica</label>
+            <p-select
+              formControlName="tecnicaId"
+              [options]="tecnicas()"
+              optionLabel="nombre"
+              optionValue="id"
+              [showClear]="true"
+              placeholder="—"
+              appendTo="body"
+            />
+          </div>
+          <div class="celda estrecha">
+            <label>Cant.</label>
+            <p-inputnumber
+              formControlName="cantidad"
+              [min]="0.01"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+            />
+          </div>
+          <div class="celda estrecha">
+            <label>P. unit.</label>
+            <p-inputnumber
+              formControlName="precioUnitario"
+              mode="currency"
+              currency="PEN"
+              locale="es-PE"
+              [min]="0"
+            />
+          </div>
+          <button
+            type="button"
+            class="quitar"
+            title="Quitar"
+            (click)="quitarItem(i)"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      }
+      @if (items.length === 0) {
+        <p class="sin-items">Agrega al menos un ítem.</p>
+      }
+    </div>
+
+    <div class="campo">
+      <label>Notas <small>(opcional)</small></label>
+      <textarea pTextarea formControlName="notas" rows="2"></textarea>
+    </div>
+
+    <div class="totales-preview">
+      <div><span>Subtotal</span><b>{{ totales().subtotal | currency: 'PEN' : 'S/ ' }}</b></div>
+      <div><span>IGV (18%)</span><b>{{ totales().igv | currency: 'PEN' : 'S/ ' }}</b></div>
+      <div class="total-final"><span>Total</span><b>{{ totales().total | currency: 'PEN' : 'S/ ' }}</b></div>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="crearVisible.set(false)"
+    />
+    <p-button
+      label="Crear pedido"
+      icon="pi pi-check"
+      [loading]="guardando()"
+      (onClick)="guardar()"
+    />
+  </ng-template>
+</p-dialog>
+
+<!-- ── Detalle ── -->
+<p-dialog
+  [header]="seleccionado()?.codigo ?? 'Pedido'"
+  [visible]="detalleVisible()"
+  (visibleChange)="detalleVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '44rem' }"
+  [draggable]="false"
+>
+  @if (seleccionado(); as p) {
+    <div class="detalle">
+      <div class="detalle-cab">
+        <div>
+          <small>Cliente</small>
+          <div>{{ p.cliente.nombreORazonSocial }}</div>
+        </div>
+        <div>
+          <small>Fecha</small>
+          <div>{{ p.fecha | date: 'dd/MM/yyyy' }}</div>
+        </div>
+        <div>
+          <small>Estado</small>
+          <div>
+            <p-tag
+              [value]="etiquetaEstado(p.estado)"
+              [severity]="severidadEstado(p.estado)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <table class="detalle-items">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Detalle</th>
+            <th class="r">Cant.</th>
+            <th class="r">P. unit.</th>
+            <th class="r">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (it of p.items; track it.id) {
+            <tr>
+              <td>{{ it.producto.nombre }}</td>
+              <td class="detalle-attrs">
+                @if (it.fibra) { <span>{{ it.fibra.nombre }}</span> }
+                @if (it.color) { <span>{{ it.color.nombre }}</span> }
+                @if (it.tecnica) { <span>{{ it.tecnica.nombre }}</span> }
+                @if (!it.fibra && !it.color && !it.tecnica) { <span>—</span> }
+              </td>
+              <td class="r">{{ it.cantidad }}</td>
+              <td class="r">{{ it.precioUnitario | currency: 'PEN' : 'S/ ' }}</td>
+              <td class="r">{{ it.subtotal | currency: 'PEN' : 'S/ ' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="totales-preview">
+        <div><span>Subtotal</span><b>{{ p.subtotal | currency: 'PEN' : 'S/ ' }}</b></div>
+        <div><span>IGV</span><b>{{ p.igv | currency: 'PEN' : 'S/ ' }}</b></div>
+        <div class="total-final"><span>Total</span><b>{{ p.total | currency: 'PEN' : 'S/ ' }}</b></div>
+      </div>
+
+      @if (p.notas) {
+        <p class="detalle-notas"><i class="pi pi-comment"></i> {{ p.notas }}</p>
+      }
+
+      <div class="detalle-acciones">
+        @if (puedeCambiarEstado) {
+          @for (e of estadosSiguientes(p.estado); track e) {
+            <p-button
+              [label]="'Marcar como ' + etiquetaEstado(e)"
+              icon="pi pi-arrow-right"
+              size="small"
+              (onClick)="avanzarEstado(p, e)"
+            />
+          }
+        }
+        @if (puedeEliminar && p.estado === 'COTIZACION') {
+          <p-button
+            label="Eliminar"
+            icon="pi pi-trash"
+            severity="danger"
+            [outlined]="true"
+            size="small"
+            (onClick)="confirmarEliminar(p)"
+          />
+        }
+      </div>
+    </div>
+  }
+</p-dialog>
