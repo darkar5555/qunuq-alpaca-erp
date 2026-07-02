@@ -74,7 +74,9 @@
 
 .item-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 5rem 7rem auto;
+  grid-template-columns:
+    minmax(0, 2fr) minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1.1fr)
+    4.5rem 8rem 2.25rem;
   gap: 0.5rem;
   align-items: end;
   background: #faf7f2;
@@ -98,6 +100,13 @@
 .item-row p-select,
 .item-row p-inputnumber {
   width: 100%;
+  min-width: 0;
+}
+
+/* Que la etiqueta del select no fuerce el ancho de la columna */
+.item-row p-select .p-select {
+  width: 100%;
+  min-width: 0;
 }
 
 .quitar {

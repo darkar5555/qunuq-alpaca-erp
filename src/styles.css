@@ -42,3 +42,14 @@ h3 {
   color: #7a6f64;
   margin: 0 0 1.5rem;
 }
+
+/* Los inputs numéricos de PrimeNG deben ocupar el ancho de su contenedor
+   (si no, no se encogen y desbordan las cuadrículas como la de pedidos). */
+.p-inputnumber {
+  width: 100%;
+}
+
+.p-inputnumber input {
+  width: 100%;
+  min-width: 0;
+}
