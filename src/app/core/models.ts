@@ -130,3 +130,26 @@ export interface PedidoInput {
   notas?: string;
   items: PedidoItemInput[];
 }
+
+// ── Dashboard ──
+export interface PedidoReciente {
+  id: string;
+  codigo: string;
+  cliente: string;
+  estado: EstadoPedido;
+  total: string;
+  fecha: string;
+}
+
+export interface DashboardResumen {
+  totalClientes: number;
+  productosActivos: number;
+  pedidosPorEstado: Record<EstadoPedido, number>;
+  ventasDelMes: { cantidad: number; monto: string };
+  pedidosRecientes: PedidoReciente[];
+}
+
+export interface VentaMes {
+  mes: string;
+  monto: string;
+}

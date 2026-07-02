@@ -1,0 +1,81 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+}
+
+.stat-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.1;
+}
+
+.stat-lbl {
+  color: #8a7d6f;
+  font-size: 0.85rem;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.panel h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.chart-box {
+  height: 280px;
+}
+
+.col-precio {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.vacio-tabla {
+  text-align: center;
+  padding: 1.5rem;
+  color: #8a7d6f;
+}
+
+/* Responsive: en pantallas chicas, una columna */
+@media (max-width: 900px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+}
