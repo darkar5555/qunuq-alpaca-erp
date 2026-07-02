@@ -1,0 +1,119 @@
+<h1 class="page-title">Catálogos</h1>
+<p class="page-subtitle">
+  Fibras, colores y técnicas del configurador "Diseña tu tejido".
+</p>
+
+<div class="grid-catalogos">
+  @for (g of grupos; track g.tipo) {
+    <section class="cat-card">
+      <header class="cat-head">
+        <h2><i [class]="g.icono"></i> {{ g.titulo }}</h2>
+        @if (puedeGestionar) {
+          <p-button
+            icon="pi pi-plus"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Agregar"
+            (onClick)="abrirNuevo(g.tipo)"
+          />
+        }
+      </header>
+
+      <p-table [value]="g.data()" styleClass="p-datatable-sm">
+        <ng-template #body let-item>
+          <tr [class.fila-inactiva]="!item.activo">
+            <td>
+              <div class="item-nombre">
+                @if (g.tipo === 'color' && item.hex) {
+                  <span class="swatch" [style.background]="item.hex"></span>
+                }
+                <span>{{ item.nombre }}</span>
+                @if (!item.activo) {
+                  <p-tag value="inactivo" severity="danger" />
+                }
+              </div>
+            </td>
+            <td class="col-acciones">
+              @if (puedeGestionar) {
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  (onClick)="abrirEditar(g.tipo, item)"
+                />
+                @if (item.activo) {
+                  <p-button
+                    icon="pi pi-ban"
+                    severity="danger"
+                    [text]="true"
+                    [rounded]="true"
+                    pTooltip="Desactivar"
+                    (onClick)="confirmarDesactivar(g.tipo, item)"
+                  />
+                } @else {
+                  <p-button
+                    icon="pi pi-refresh"
+                    severity="success"
+                    [text]="true"
+                    [rounded]="true"
+                    pTooltip="Reactivar"
+                    (onClick)="reactivar(g.tipo, item)"
+                  />
+                }
+              }
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="2" class="vacio-tabla">Sin elementos.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+  }
+</div>
+
+<!-- Formulario crear/editar -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '24rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-col">
+    <div class="campo">
+      <label>Nombre</label>
+      <input pInputText formControlName="nombre" />
+    </div>
+
+    @if (esColor()) {
+      <div class="campo">
+        <label>Color</label>
+        <div class="color-row">
+          <input type="color" formControlName="hex" class="color-input" />
+          <span class="color-val">{{ form.controls.hex.value }}</span>
+        </div>
+      </div>
+    }
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="dialogVisible.set(false)"
+    />
+    <p-button
+      label="Guardar"
+      icon="pi pi-check"
+      [loading]="guardando()"
+      (onClick)="guardar()"
+    />
+  </ng-template>
+</p-dialog>

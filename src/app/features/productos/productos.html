@@ -1,0 +1,175 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Productos</h1>
+    <p class="page-subtitle">Catálogo de productos del taller.</p>
+  </div>
+  @if (puedeEditar) {
+    <p-button label="Nuevo producto" icon="pi pi-plus" (onClick)="abrirNuevo()" />
+  }
+</div>
+
+<div class="toolbar">
+  <label class="switch-inline">
+    <p-toggleswitch
+      [ngModel]="mostrarInactivos()"
+      (ngModelChange)="mostrarInactivos.set($event)"
+    />
+    <span>Mostrar inactivos</span>
+  </label>
+</div>
+
+<p-table
+  [value]="visibles()"
+  [loading]="cargando()"
+  [paginator]="visibles().length > 10"
+  [rows]="10"
+  [rowHover]="true"
+  styleClass="p-datatable-sm card-table"
+>
+  <ng-template #header>
+    <tr>
+      <th>Producto</th>
+      <th>Categoría</th>
+      <th class="col-precio">Precio base</th>
+      <th>Unidad</th>
+      <th>Estado</th>
+      <th style="width: 8rem"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-p>
+    <tr [class.fila-inactiva]="!p.activo">
+      <td>
+        <strong>{{ p.nombre }}</strong>
+        @if (p.descripcion) {
+          <div class="desc">{{ p.descripcion }}</div>
+        }
+      </td>
+      <td><p-tag [value]="p.categoria" severity="secondary" /></td>
+      <td class="col-precio">{{ p.precioBase | currency: 'PEN' : 'S/ ' }}</td>
+      <td>{{ p.unidad }}</td>
+      <td>
+        <p-tag
+          [value]="p.activo ? 'Activo' : 'Inactivo'"
+          [severity]="p.activo ? 'success' : 'danger'"
+        />
+      </td>
+      <td>
+        <div class="acciones">
+          @if (puedeEditar) {
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              (onClick)="abrirEditar(p)"
+            />
+          }
+          @if (puedeEliminar && p.activo) {
+            <p-button
+              icon="pi pi-ban"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Desactivar"
+              (onClick)="confirmarDesactivar(p)"
+            />
+          }
+          @if (puedeEditar && !p.activo) {
+            <p-button
+              icon="pi pi-refresh"
+              severity="success"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Reactivar"
+              (onClick)="reactivar(p)"
+            />
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="vacio-tabla">No hay productos para mostrar.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Formulario crear/editar -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-grid">
+    <div class="campo campo-full">
+      <label>Nombre</label>
+      <input pInputText formControlName="nombre" />
+    </div>
+
+    <div class="campo">
+      <label>Categoría</label>
+      <p-select
+        formControlName="categoria"
+        [options]="categorias"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="campo">
+      <label>Unidad</label>
+      <p-select
+        formControlName="unidad"
+        [options]="unidades"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Precio base</label>
+      <p-inputnumber
+        formControlName="precioBase"
+        mode="currency"
+        currency="PEN"
+        locale="es-PE"
+        [min]="0"
+      />
+    </div>
+
+    <div class="campo campo-full">
+      <label>Descripción <small>(opcional)</small></label>
+      <textarea pTextarea formControlName="descripcion" rows="2"></textarea>
+    </div>
+
+    @if (editandoId()) {
+      <div class="campo campo-full switch-inline">
+        <p-toggleswitch formControlName="activo" />
+        <span>Producto activo</span>
+      </div>
+    }
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="dialogVisible.set(false)"
+    />
+    <p-button
+      label="Guardar"
+      icon="pi pi-check"
+      [loading]="guardando()"
+      (onClick)="guardar()"
+    />
+  </ng-template>
+</p-dialog>

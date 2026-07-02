@@ -1,0 +1,88 @@
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar {
+  margin-bottom: 1rem;
+}
+
+.switch-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.card-table {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.col-precio {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.desc {
+  font-size: 0.82rem;
+  color: #8a7d6f;
+  margin-top: 0.15rem;
+}
+
+.fila-inactiva {
+  opacity: 0.55;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.vacio-tabla {
+  text-align: center;
+  padding: 2rem;
+  color: #8a7d6f;
+}
+
+/* Formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.campo label small {
+  color: #9a8f80;
+  font-weight: 400;
+}
+
+.campo input,
+.campo textarea,
+.campo p-select,
+.campo p-inputnumber {
+  width: 100%;
+}
+
+.campo-full {
+  grid-column: 1 / -1;
+}
