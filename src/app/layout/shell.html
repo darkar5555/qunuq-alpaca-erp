@@ -14,6 +14,9 @@
         >
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
+          @if (item.link === '/solicitudes' && solicitudesNuevas() > 0) {
+            <span class="badge">{{ solicitudesNuevas() }}</span>
+          }
         </a>
       }
     </nav>

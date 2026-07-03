@@ -182,3 +182,23 @@ export interface TarjetaProducto {
   orden: number;
   activo: boolean;
 }
+
+// ── Solicitudes de cotización (bandeja) ──
+export type EstadoSolicitud =
+  | 'NUEVA'
+  | 'ATENDIDA'
+  | 'CONVERTIDA'
+  | 'DESCARTADA';
+
+export interface Solicitud {
+  id: string;
+  nombre: string;
+  email: string | null;
+  telefono: string | null;
+  interes: string | null;
+  mensaje: string | null;
+  diseno: string | null;
+  origen: string;
+  estado: EstadoSolicitud;
+  createdAt: string;
+}

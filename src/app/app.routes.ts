@@ -18,6 +18,13 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'solicitudes',
+        loadComponent: () =>
+          import('./features/solicitudes/solicitudes').then(
+            (m) => m.Solicitudes,
+          ),
+      },
+      {
         path: 'pedidos',
         loadComponent: () =>
           import('./features/pedidos/pedidos').then((m) => m.Pedidos),

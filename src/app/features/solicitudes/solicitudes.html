@@ -1,0 +1,147 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Solicitudes</h1>
+    <p class="page-subtitle">Cotizaciones recibidas desde la web.</p>
+  </div>
+</div>
+
+<div class="toolbar">
+  <p-select
+    [ngModel]="filtroEstado()"
+    (onChange)="cambiarFiltro($event.value)"
+    [options]="opcionesFiltro"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filtrar por estado"
+  />
+</div>
+
+<p-table
+  [value]="solicitudes()"
+  [loading]="cargando()"
+  [paginator]="solicitudes().length > 10"
+  [rows]="10"
+  [rowHover]="true"
+  styleClass="p-datatable-sm card-table"
+>
+  <ng-template #header>
+    <tr>
+      <th>Nombre</th>
+      <th>Contacto</th>
+      <th>Interés</th>
+      <th>Origen</th>
+      <th>Estado</th>
+      <th>Fecha</th>
+      <th style="width: 5rem"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-s>
+    <tr [class.fila-nueva]="s.estado === 'NUEVA'">
+      <td><strong>{{ s.nombre }}</strong></td>
+      <td>
+        <div class="contacto">
+          @if (s.email) { <span><i class="pi pi-envelope"></i> {{ s.email }}</span> }
+          @if (s.telefono) { <span><i class="pi pi-phone"></i> {{ s.telefono }}</span> }
+        </div>
+      </td>
+      <td>{{ s.interes ?? '—' }}</td>
+      <td>
+        <p-tag
+          [value]="s.origen === 'configurador' ? 'Configurador' : 'Formulario'"
+          severity="secondary"
+        />
+      </td>
+      <td>
+        <p-tag [value]="etiquetaEstado(s.estado)" [severity]="severidadEstado(s.estado)" />
+      </td>
+      <td>{{ s.createdAt | date: 'dd/MM/yyyy' }}</td>
+      <td>
+        <p-button
+          icon="pi pi-eye"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          pTooltip="Ver detalle"
+          (onClick)="verDetalle(s)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7" class="vacio-tabla">No hay solicitudes para mostrar.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Detalle -->
+<p-dialog
+  [header]="seleccionada()?.nombre ?? 'Solicitud'"
+  [visible]="detalleVisible()"
+  (visibleChange)="detalleVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '34rem' }"
+  [draggable]="false"
+>
+  @if (seleccionada(); as s) {
+    <div class="detalle">
+      <div class="detalle-tags">
+        <p-tag [value]="etiquetaEstado(s.estado)" [severity]="severidadEstado(s.estado)" />
+        <p-tag
+          [value]="s.origen === 'configurador' ? 'Configurador' : 'Formulario'"
+          severity="secondary"
+        />
+      </div>
+
+      <dl class="datos">
+        @if (s.email) {
+          <dt>Correo</dt>
+          <dd><a [href]="'mailto:' + s.email">{{ s.email }}</a></dd>
+        }
+        @if (s.telefono) {
+          <dt>Teléfono</dt>
+          <dd>{{ s.telefono }}</dd>
+        }
+        @if (s.interes) {
+          <dt>Interés</dt>
+          <dd>{{ s.interes }}</dd>
+        }
+        @if (s.diseno) {
+          <dt>Diseño elegido</dt>
+          <dd>{{ s.diseno }}</dd>
+        }
+        @if (s.mensaje) {
+          <dt>Mensaje</dt>
+          <dd>{{ s.mensaje }}</dd>
+        }
+        <dt>Recibida</dt>
+        <dd>{{ s.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      </dl>
+
+      <div class="detalle-acciones">
+        @for (a of acciones; track a.estado) {
+          @if (s.estado !== a.estado) {
+            <p-button
+              [label]="a.label"
+              [icon]="a.icon"
+              size="small"
+              [severity]="a.estado === 'DESCARTADA' ? 'secondary' : 'primary'"
+              [outlined]="a.estado === 'DESCARTADA'"
+              (onClick)="cambiarEstado(s, a.estado)"
+            />
+          }
+        }
+        <p-button
+          label="Eliminar"
+          icon="pi pi-trash"
+          severity="danger"
+          [text]="true"
+          size="small"
+          (onClick)="confirmarEliminar(s)"
+        />
+      </div>
+    </div>
+  }
+</p-dialog>
