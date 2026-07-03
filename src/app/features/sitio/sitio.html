@@ -95,3 +95,80 @@
     }
   </section>
 </div>
+
+<!-- ── Tarjetas "Qué tejemos" ── -->
+<input
+  #fileTarjeta
+  type="file"
+  accept="image/*"
+  hidden
+  (change)="onFotoTarjeta($event)"
+/>
+<section class="bloque bloque-full">
+  <div class="seccion-head">
+    <h2 class="bloque-titulo"><i class="pi pi-th-large"></i> Tarjetas de "Qué tejemos"</h2>
+    <p-button
+      label="Agregar tarjeta"
+      icon="pi pi-plus"
+      size="small"
+      (onClick)="agregarTarjeta()"
+    />
+  </div>
+
+  <div class="tarjetas-grid">
+    @for (t of tarjetas(); track t.id) {
+      <div class="tarjeta" [class.inactiva]="!t.activo">
+        <div class="tarjeta-foto">
+          @if (t.imagenUrl) {
+            <img [src]="url(t.imagenUrl)" [alt]="t.titulo" />
+          } @else {
+            <div class="sin-foto"><i class="pi pi-image"></i></div>
+          }
+          <p-button
+            label="Cambiar foto"
+            icon="pi pi-upload"
+            size="small"
+            [text]="true"
+            [loading]="subiendoTarjeta() === t.id"
+            (onClick)="seleccionarFotoTarjeta(fileTarjeta, t.id)"
+          />
+        </div>
+
+        <div class="campo">
+          <label>Título</label>
+          <input pInputText [(ngModel)]="t.titulo" />
+        </div>
+        <div class="campo">
+          <label>Descripción</label>
+          <textarea pTextarea [(ngModel)]="t.descripcion" rows="2"></textarea>
+        </div>
+
+        <div class="tarjeta-acciones">
+          <label class="switch-inline">
+            <p-toggleswitch
+              [ngModel]="t.activo"
+              (ngModelChange)="alternarActivoTarjeta(t)"
+            />
+            <span>Visible</span>
+          </label>
+          <div class="botones">
+            <p-button
+              icon="pi pi-check"
+              label="Guardar"
+              size="small"
+              [loading]="guardandoTarjeta() === t.id"
+              (onClick)="guardarTarjeta(t)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+              (onClick)="confirmarEliminarTarjeta(t)"
+            />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -173,3 +173,12 @@ export interface ImagenSitio {
   orden: number;
   activo: boolean;
 }
+
+export interface TarjetaProducto {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  imagenUrl: string | null;
+  orden: number;
+  activo: boolean;
+}

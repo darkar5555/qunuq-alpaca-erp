@@ -6,7 +6,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
-import { ContenidoSitio, ImagenSitio } from '../../core/models';
+import {
+  ContenidoSitio,
+  ImagenSitio,
+  TarjetaProducto,
+} from '../../core/models';
 import { ContenidoService } from './contenido.service';
 
 interface GrupoTextos {
@@ -49,8 +53,11 @@ export class Sitio implements OnInit {
 
   readonly textos = signal<ContenidoSitio[]>([]);
   readonly imagenes = signal<ImagenSitio[]>([]);
+  readonly tarjetas = signal<TarjetaProducto[]>([]);
   readonly guardandoClave = signal<string | null>(null);
   readonly subiendoSeccion = signal<string | null>(null);
+  readonly subiendoTarjeta = signal<string | null>(null);
+  readonly guardandoTarjeta = signal<string | null>(null);
 
   readonly secciones = SECCIONES;
 
@@ -81,6 +88,10 @@ export class Sitio implements OnInit {
     this.api.listarImagenes().subscribe({
       next: (d) => this.imagenes.set(d),
       error: () => this.error('No se pudieron cargar las imágenes'),
+    });
+    this.api.listarTarjetas().subscribe({
+      next: (d) => this.tarjetas.set(d),
+      error: () => this.error('No se pudieron cargar las tarjetas'),
     });
   }
 
@@ -154,6 +165,92 @@ export class Sitio implements OnInit {
         this.api.eliminarImagen(img.id).subscribe({
           next: () => {
             this.msg.add({ severity: 'success', summary: 'Imagen eliminada' });
+            this.cargar();
+          },
+          error: (err) => this.error(this.textoError(err)),
+        });
+      },
+    });
+  }
+
+  // ── Tarjetas "Qué tejemos" ──
+  agregarTarjeta() {
+    this.api
+      .crearTarjeta({ titulo: 'Nueva tarjeta', descripcion: 'Descripción…' })
+      .subscribe({
+        next: () => {
+          this.msg.add({ severity: 'success', summary: 'Tarjeta agregada' });
+          this.cargar();
+        },
+        error: (err) => this.error(this.textoError(err)),
+      });
+  }
+
+  guardarTarjeta(t: TarjetaProducto) {
+    this.guardandoTarjeta.set(t.id);
+    this.api
+      .actualizarTarjeta(t.id, {
+        titulo: t.titulo,
+        descripcion: t.descripcion,
+      })
+      .subscribe({
+        next: () => {
+          this.guardandoTarjeta.set(null);
+          this.msg.add({ severity: 'success', summary: 'Tarjeta guardada' });
+        },
+        error: (err) => {
+          this.guardandoTarjeta.set(null);
+          this.error(this.textoError(err));
+        },
+      });
+  }
+
+  seleccionarFotoTarjeta(input: HTMLInputElement, id: string) {
+    this.subiendoTarjeta.set(id);
+    input.value = '';
+    input.click();
+  }
+
+  onFotoTarjeta(evento: Event) {
+    const input = evento.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    const id = this.subiendoTarjeta();
+    if (!archivo || !id) {
+      return;
+    }
+    this.api.subirImagenTarjeta(id, archivo).subscribe({
+      next: () => {
+        this.msg.add({ severity: 'success', summary: 'Foto actualizada' });
+        this.subiendoTarjeta.set(null);
+        this.cargar();
+      },
+      error: (err) => {
+        this.subiendoTarjeta.set(null);
+        this.error(this.textoError(err));
+      },
+    });
+  }
+
+  alternarActivoTarjeta(t: TarjetaProducto) {
+    this.api.actualizarTarjeta(t.id, { activo: !t.activo }).subscribe({
+      next: () => this.cargar(),
+      error: (err) => this.error(this.textoError(err)),
+    });
+  }
+
+  confirmarEliminarTarjeta(t: TarjetaProducto) {
+    this.confirm.confirm({
+      header: 'Eliminar tarjeta',
+      message: `¿Eliminar la tarjeta "${t.titulo}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => {
+        this.api.eliminarTarjeta(t.id).subscribe({
+          next: () => {
+            this.msg.add({ severity: 'success', summary: 'Tarjeta eliminada' });
             this.cargar();
           },
           error: (err) => this.error(this.textoError(err)),

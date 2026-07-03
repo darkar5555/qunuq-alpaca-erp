@@ -1,7 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { ContenidoSitio, ImagenSitio } from '../../core/models';
+import {
+  ContenidoSitio,
+  ImagenSitio,
+  TarjetaProducto,
+} from '../../core/models';
 
 @Injectable({ providedIn: 'root' })
 export class ContenidoService {
@@ -51,6 +55,43 @@ export class ContenidoService {
 
   eliminarImagen(id: string) {
     return this.http.delete<{ mensaje: string }>(`${this.base}/imagenes/${id}`);
+  }
+
+  // ── Tarjetas "Qué tejemos" ──
+  listarTarjetas() {
+    return this.http.get<TarjetaProducto[]>(`${this.base}/tarjetas`);
+  }
+
+  crearTarjeta(data: { titulo: string; descripcion: string }) {
+    return this.http.post<TarjetaProducto>(`${this.base}/tarjetas`, data);
+  }
+
+  actualizarTarjeta(
+    id: string,
+    data: {
+      titulo?: string;
+      descripcion?: string;
+      orden?: number;
+      activo?: boolean;
+    },
+  ) {
+    return this.http.patch<TarjetaProducto>(
+      `${this.base}/tarjetas/${id}`,
+      data,
+    );
+  }
+
+  subirImagenTarjeta(id: string, archivo: File) {
+    const fd = new FormData();
+    fd.append('archivo', archivo);
+    return this.http.post<TarjetaProducto>(
+      `${this.base}/tarjetas/${id}/imagen`,
+      fd,
+    );
+  }
+
+  eliminarTarjeta(id: string) {
+    return this.http.delete<{ mensaje: string }>(`${this.base}/tarjetas/${id}`);
   }
 
   // Convierte /uploads/.. en URL absoluta para mostrar la miniatura.
