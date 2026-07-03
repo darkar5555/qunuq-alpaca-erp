@@ -1,14 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../core/auth.service';
+import { Rol } from '../core/models';
 
 interface ItemMenu {
   label: string;
   icon: string;
   link: string;
+  roles?: Rol[]; // si se define, solo esos roles lo ven
 }
 
 @Component({
@@ -34,7 +36,13 @@ export class Shell {
     { label: 'Clientes', icon: 'pi pi-users', link: '/clientes' },
     { label: 'Productos', icon: 'pi pi-box', link: '/productos' },
     { label: 'Catálogos', icon: 'pi pi-tags', link: '/catalogos' },
+    { label: 'Sitio web', icon: 'pi pi-globe', link: '/sitio', roles: ['ADMIN'] },
   ];
+
+  // Solo muestra los ítems permitidos para el rol del usuario.
+  readonly menuVisible = computed(() =>
+    this.menu.filter((m) => !m.roles || this.auth.tieneRol(...m.roles)),
+  );
 
   logout() {
     this.auth.logout();

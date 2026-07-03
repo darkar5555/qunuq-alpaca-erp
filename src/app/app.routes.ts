@@ -37,6 +37,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalogos/catalogos').then((m) => m.Catalogos),
       },
+      {
+        path: 'sitio',
+        loadComponent: () =>
+          import('./features/sitio/sitio').then((m) => m.Sitio),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

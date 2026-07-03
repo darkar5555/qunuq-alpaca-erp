@@ -1,0 +1,97 @@
+<h1 class="page-title">Sitio web</h1>
+<p class="page-subtitle">
+  Edita los textos y las fotos de la landing pública.
+</p>
+
+<!-- Input oculto compartido para subir imágenes -->
+<input
+  #fileInput
+  type="file"
+  accept="image/*"
+  hidden
+  (change)="onArchivo($event)"
+/>
+
+<div class="columnas">
+  <!-- ── Textos ── -->
+  <section class="bloque">
+    <h2 class="bloque-titulo"><i class="pi pi-align-left"></i> Textos</h2>
+
+    @for (g of grupos(); track g.grupo) {
+      <div class="panel">
+        <h3 class="grupo-titulo">{{ g.titulo }}</h3>
+        @for (item of g.items; track item.clave) {
+          <div class="campo">
+            <label>{{ item.etiqueta }}</label>
+            <div class="campo-fila">
+              @if (item.tipo === 'multilinea') {
+                <textarea
+                  pTextarea
+                  [(ngModel)]="item.valor"
+                  rows="3"
+                ></textarea>
+              } @else {
+                <input pInputText [(ngModel)]="item.valor" [type]="item.tipo === 'url' ? 'url' : 'text'" />
+              }
+              <p-button
+                icon="pi pi-check"
+                severity="secondary"
+                pTooltip="Guardar"
+                [loading]="guardandoClave() === item.clave"
+                (onClick)="guardarTexto(item)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ── Imágenes ── -->
+  <section class="bloque">
+    <h2 class="bloque-titulo"><i class="pi pi-images"></i> Imágenes</h2>
+
+    @for (s of secciones; track s.key) {
+      <div class="panel">
+        <div class="seccion-head">
+          <h3 class="grupo-titulo">{{ s.label }}</h3>
+          <p-button
+            label="Subir foto"
+            icon="pi pi-upload"
+            size="small"
+            [text]="true"
+            [loading]="subiendoSeccion() === s.key"
+            (onClick)="seleccionarArchivo(fileInput, s.key)"
+          />
+        </div>
+
+        @if (imagenesDe(s.key).length === 0) {
+          <p class="vacio">Sin imágenes en esta sección.</p>
+        } @else {
+          <div class="galeria-grid">
+            @for (img of imagenesDe(s.key); track img.id) {
+              <figure class="miniatura" [class.inactiva]="!img.activo">
+                <img [src]="url(img.url)" [alt]="img.titulo ?? ''" />
+                <figcaption>
+                  <p-toggleswitch
+                    [ngModel]="img.activo"
+                    (ngModelChange)="alternarActivo(img)"
+                    pTooltip="Visible en la landing"
+                  />
+                  <button
+                    type="button"
+                    class="borrar"
+                    pTooltip="Eliminar"
+                    (click)="confirmarEliminar(img)"
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </figcaption>
+              </figure>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

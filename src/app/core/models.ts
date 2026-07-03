@@ -153,3 +153,23 @@ export interface VentaMes {
   mes: string;
   monto: string;
 }
+
+// ── Contenido del sitio (CMS de la landing) ──
+export interface ContenidoSitio {
+  id: string;
+  clave: string;
+  valor: string;
+  grupo: string;
+  etiqueta: string;
+  tipo: string; // texto | multilinea | url
+  orden: number;
+}
+
+export interface ImagenSitio {
+  id: string;
+  seccion: string;
+  url: string;
+  titulo: string | null;
+  orden: number;
+  activo: boolean;
+}
