@@ -27,10 +27,22 @@ const TITULOS_GRUPO: Record<string, string> = {
 };
 
 const SECCIONES = [
-  { key: 'hero', label: 'Portada' },
-  { key: 'galeria', label: 'Galería' },
-  { key: 'about', label: 'Nosotros' },
-  { key: 'producto', label: 'Productos' },
+  {
+    key: 'hero',
+    label: 'Portada',
+    recomendacion: 'Horizontal, panorámica ~1600×900 (16:9). Usa 1 foto.',
+  },
+  {
+    key: 'galeria',
+    label: 'Galería',
+    recomendacion:
+      'Verticales o cuadradas, todas del mismo tamaño (~800×1000). Puedes subir varias.',
+  },
+  {
+    key: 'about',
+    label: 'Nosotros',
+    recomendacion: 'Horizontal ~1000×750. Usa 1 foto.',
+  },
 ];
 
 @Component({

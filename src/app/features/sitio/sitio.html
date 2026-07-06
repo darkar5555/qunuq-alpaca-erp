@@ -50,11 +50,21 @@
   <!-- ── Imágenes ── -->
   <section class="bloque">
     <h2 class="bloque-titulo"><i class="pi pi-images"></i> Imágenes</h2>
+    <p class="nota-formatos">
+      <i class="pi pi-info-circle"></i>
+      Formatos JPG, PNG o WEBP · máximo 5 MB · cualquier tamaño se ajusta,
+      pero se ve mejor siguiendo lo recomendado.
+    </p>
 
     @for (s of secciones; track s.key) {
       <div class="panel">
         <div class="seccion-head">
-          <h3 class="grupo-titulo">{{ s.label }}</h3>
+          <div>
+            <h3 class="grupo-titulo">{{ s.label }}</h3>
+            <p class="recomendacion">
+              <i class="pi pi-image"></i> Recomendado: {{ s.recomendacion }}
+            </p>
+          </div>
           <p-button
             label="Subir foto"
             icon="pi pi-upload"
@@ -106,7 +116,12 @@
 />
 <section class="bloque bloque-full">
   <div class="seccion-head">
-    <h2 class="bloque-titulo"><i class="pi pi-th-large"></i> Tarjetas de "Qué tejemos"</h2>
+    <div>
+      <h2 class="bloque-titulo"><i class="pi pi-th-large"></i> Tarjetas de "Qué tejemos"</h2>
+      <p class="recomendacion">
+        <i class="pi pi-image"></i> Foto recomendada: apaisada 4:3 ~800×600. Usa el mismo tamaño en todas para que se vean parejas.
+      </p>
+    </div>
     <p-button
       label="Agregar tarjeta"
       icon="pi pi-plus"
