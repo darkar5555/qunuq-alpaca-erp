@@ -14,6 +14,31 @@ export interface LoginResponse {
   usuario: Usuario;
 }
 
+// Usuario completo que devuelve la API en /usuarios (gestión de cuentas).
+export interface UsuarioDetalle {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: Rol;
+  activo: boolean;
+  createdAt: string;
+}
+
+// Lo que enviamos al crear/editar un usuario.
+export interface UsuarioInput {
+  nombre: string;
+  email: string;
+  rol: Rol;
+  password?: string; // requerido al crear; en edición, opcional
+  activo?: boolean;
+}
+
+// Cambio de la propia contraseña (pantalla de perfil).
+export interface CambiarPasswordInput {
+  passwordActual: string;
+  passwordNueva: string;
+}
+
 export type TipoDocumento = 'DNI' | 'RUC';
 
 export interface Cliente {

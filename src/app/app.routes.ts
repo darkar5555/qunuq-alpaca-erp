@@ -49,6 +49,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/sitio/sitio').then((m) => m.Sitio),
       },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./features/usuarios/usuarios').then((m) => m.Usuarios),
+      },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/perfil/perfil').then((m) => m.Perfil),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

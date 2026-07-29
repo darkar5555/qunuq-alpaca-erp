@@ -24,13 +24,19 @@
 
   <div class="main">
     <header class="topbar">
-      <div class="topbar-user">
+      <a
+        class="topbar-user"
+        routerLink="/perfil"
+        routerLinkActive="active"
+        pTooltip="Mi perfil"
+        tooltipPosition="bottom"
+      >
         <div class="avatar">{{ (usuario()?.nombre ?? '?')[0] }}</div>
         <div class="user-meta">
           <strong>{{ usuario()?.nombre }}</strong>
           <small>{{ usuario()?.rol }}</small>
         </div>
-      </div>
+      </a>
       <p-button
         label="Salir"
         icon="pi pi-sign-out"

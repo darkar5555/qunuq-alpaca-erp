@@ -1,0 +1,99 @@
+.page-head {
+  margin-bottom: 1.25rem;
+}
+
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tarjeta {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.perfil-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.avatar-grande {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--marca-terracota);
+}
+
+.perfil-nombre {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.datos {
+  margin: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.datos dt {
+  font-size: 0.8rem;
+  color: #9a8f80;
+}
+
+.datos dd {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.tarjeta-titulo {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.campo label small {
+  color: #9a8f80;
+  font-weight: 400;
+}
+
+.campo input {
+  width: 100%;
+}
+
+.acciones-form {
+  display: flex;
+  justify-content: flex-end;
+}

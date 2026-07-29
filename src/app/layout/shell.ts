@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../core/auth.service';
 import { Rol } from '../core/models';
 import { SolicitudesService } from '../features/solicitudes/solicitudes.service';
@@ -23,6 +24,7 @@ interface ItemMenu {
     ButtonModule,
     ToastModule,
     ConfirmDialogModule,
+    TooltipModule,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
@@ -43,6 +45,7 @@ export class Shell {
     { label: 'Productos', icon: 'pi pi-box', link: '/productos' },
     { label: 'Catálogos', icon: 'pi pi-tags', link: '/catalogos' },
     { label: 'Sitio web', icon: 'pi pi-globe', link: '/sitio', roles: ['ADMIN'] },
+    { label: 'Usuarios', icon: 'pi pi-user', link: '/usuarios', roles: ['ADMIN'] },
   ];
 
   // Solo muestra los ítems permitidos para el rol del usuario.
