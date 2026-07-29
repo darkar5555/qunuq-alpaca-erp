@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -36,6 +36,17 @@ export class Shell {
 
   // Contador de solicitudes nuevas (badge en el menú).
   readonly solicitudesNuevas = this.solicitudesApi.nuevas;
+
+  // Barra lateral en móvil: cerrada por defecto, se abre con el botón de menú.
+  readonly sidebarAbierto = signal(false);
+
+  toggleSidebar() {
+    this.sidebarAbierto.update((v) => !v);
+  }
+
+  cerrarSidebar() {
+    this.sidebarAbierto.set(false);
+  }
 
   readonly menu: ItemMenu[] = [
     { label: 'Dashboard', icon: 'pi pi-chart-line', link: '/dashboard' },

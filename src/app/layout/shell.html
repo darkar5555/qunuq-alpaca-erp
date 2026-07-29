@@ -1,5 +1,9 @@
 <div class="shell">
-  <aside class="sidebar">
+  @if (sidebarAbierto()) {
+    <div class="overlay" (click)="cerrarSidebar()"></div>
+  }
+
+  <aside class="sidebar" [class.abierto]="sidebarAbierto()">
     <div class="brand">
       <span class="brand-mark">QA</span>
       <span class="brand-name">Qunuq Alpaca</span>
@@ -11,6 +15,7 @@
           [routerLink]="item.link"
           routerLinkActive="active"
           class="nav-item"
+          (click)="cerrarSidebar()"
         >
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
@@ -24,26 +29,37 @@
 
   <div class="main">
     <header class="topbar">
-      <a
-        class="topbar-user"
-        routerLink="/perfil"
-        routerLinkActive="active"
-        pTooltip="Mi perfil"
-        tooltipPosition="bottom"
+      <button
+        class="menu-toggle"
+        type="button"
+        (click)="toggleSidebar()"
+        aria-label="Abrir menú"
       >
-        <div class="avatar">{{ (usuario()?.nombre ?? '?')[0] }}</div>
-        <div class="user-meta">
-          <strong>{{ usuario()?.nombre }}</strong>
-          <small>{{ usuario()?.rol }}</small>
-        </div>
-      </a>
-      <p-button
-        label="Salir"
-        icon="pi pi-sign-out"
-        severity="secondary"
-        [text]="true"
-        (onClick)="logout()"
-      />
+        <i class="pi pi-bars"></i>
+      </button>
+
+      <div class="topbar-right">
+        <a
+          class="topbar-user"
+          routerLink="/perfil"
+          routerLinkActive="active"
+          pTooltip="Mi perfil"
+          tooltipPosition="bottom"
+        >
+          <div class="avatar">{{ (usuario()?.nombre ?? '?')[0] }}</div>
+          <div class="user-meta">
+            <strong>{{ usuario()?.nombre }}</strong>
+            <small>{{ usuario()?.rol }}</small>
+          </div>
+        </a>
+        <p-button
+          label="Salir"
+          icon="pi pi-sign-out"
+          severity="secondary"
+          [text]="true"
+          (onClick)="logout()"
+        />
+      </div>
     </header>
 
     <main class="content">
