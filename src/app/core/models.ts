@@ -139,6 +139,28 @@ export interface Pedido {
   notas: string | null;
   cliente: Cliente;
   items: PedidoItem[];
+  pagos: Pago[];
+  pagado: string; // suma de pagos (calculado por la API)
+  saldo: string; // total - pagado (calculado por la API)
+}
+
+// ── Pagos ──
+export type MetodoPago = 'EFECTIVO' | 'TRANSFERENCIA' | 'YAPE' | 'PLIN';
+
+export interface Pago {
+  id: string;
+  pedidoId: string | null;
+  comprobanteId: string | null;
+  monto: string;
+  metodo: MetodoPago;
+  fecha: string;
+}
+
+export interface PagoInput {
+  pedidoId: string;
+  monto: number;
+  metodo: MetodoPago;
+  fecha?: string;
 }
 
 export interface PedidoItemInput {

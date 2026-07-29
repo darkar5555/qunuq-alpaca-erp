@@ -230,3 +230,100 @@
   border-top: 1px solid var(--gris-borde);
   padding-top: 0.85rem;
 }
+
+/* ── Pagos ── */
+.pagos {
+  border-top: 1px solid var(--gris-borde);
+  padding-top: 0.85rem;
+}
+
+.pagos-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pagos-resumen {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pagos-saldo {
+  font-size: 0.9rem;
+  color: #6b5f52;
+}
+
+.pagos-saldo b {
+  color: var(--marca-cafe);
+}
+
+.pagos-lista {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pagos-lista li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #faf7f2;
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.pago-monto {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pago-metodo {
+  color: #6b5f52;
+}
+
+.pago-fecha {
+  margin-left: auto;
+  color: #8a7d6f;
+  font-size: 0.82rem;
+}
+
+.pago-anular {
+  border: none;
+  background: transparent;
+  color: #b5674d;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+}
+
+.pago-anular:hover {
+  background: rgba(181, 103, 77, 0.12);
+}
+
+.pagos-vacio {
+  color: #8a7d6f;
+  font-style: italic;
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+}
+
+/* Formulario registrar pago */
+.pago-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.pago-form p-inputnumber,
+.pago-form p-select {
+  width: 100%;
+}

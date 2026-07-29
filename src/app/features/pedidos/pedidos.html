@@ -33,6 +33,7 @@
       <th>Cliente</th>
       <th>Fecha</th>
       <th>Estado</th>
+      <th>Cobro</th>
       <th class="col-precio">Total</th>
       <th style="width: 5rem"></th>
     </tr>
@@ -48,6 +49,9 @@
           [value]="etiquetaEstado(p.estado)"
           [severity]="severidadEstado(p.estado)"
         />
+      </td>
+      <td>
+        <p-tag [value]="estadoPago(p)" [severity]="severidadPago(p)" />
       </td>
       <td class="col-precio">{{ p.total | currency: 'PEN' : 'S/ ' }}</td>
       <td>
@@ -65,7 +69,7 @@
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="6" class="vacio-tabla">No hay pedidos para mostrar.</td>
+      <td colspan="7" class="vacio-tabla">No hay pedidos para mostrar.</td>
     </tr>
   </ng-template>
 </p-table>
@@ -284,6 +288,53 @@
         <div class="total-final"><span>Total</span><b>{{ p.total | currency: 'PEN' : 'S/ ' }}</b></div>
       </div>
 
+      <!-- Pagos / cobranza -->
+      <div class="pagos">
+        <div class="pagos-head">
+          <div class="pagos-resumen">
+            <p-tag [value]="estadoPago(p)" [severity]="severidadPago(p)" />
+            <span class="pagos-saldo">
+              Pagado {{ p.pagado | currency: 'PEN' : 'S/ ' }} · Saldo
+              <b>{{ p.saldo | currency: 'PEN' : 'S/ ' }}</b>
+            </span>
+          </div>
+          @if (puedeCrear && saldoNum(p) > 0) {
+            <p-button
+              label="Registrar pago"
+              icon="pi pi-wallet"
+              size="small"
+              (onClick)="abrirPago()"
+            />
+          }
+        </div>
+
+        @if (p.pagos.length > 0) {
+          <ul class="pagos-lista">
+            @for (pago of p.pagos; track pago.id) {
+              <li>
+                <span class="pago-monto">
+                  {{ pago.monto | currency: 'PEN' : 'S/ ' }}
+                </span>
+                <span class="pago-metodo">{{ metodoLabel(pago.metodo) }}</span>
+                <span class="pago-fecha">{{ pago.fecha | date: 'dd/MM/yyyy' }}</span>
+                @if (puedeEliminar) {
+                  <button
+                    type="button"
+                    class="pago-anular"
+                    title="Anular pago"
+                    (click)="confirmarAnularPago(pago)"
+                  >
+                    <i class="pi pi-times"></i>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="pagos-vacio">Sin pagos registrados.</p>
+        }
+      </div>
+
       @if (p.notas) {
         <p class="detalle-notas"><i class="pi pi-comment"></i> {{ p.notas }}</p>
       }
@@ -312,4 +363,52 @@
       </div>
     </div>
   }
+</p-dialog>
+
+<!-- ── Registrar pago ── -->
+<p-dialog
+  header="Registrar pago"
+  [visible]="pagoVisible()"
+  (visibleChange)="pagoVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '24rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="pagoForm" class="pago-form">
+    <div class="campo">
+      <label>Monto</label>
+      <p-inputnumber
+        formControlName="monto"
+        mode="currency"
+        currency="PEN"
+        locale="es-PE"
+        [min]="0.01"
+      />
+    </div>
+    <div class="campo">
+      <label>Método</label>
+      <p-select
+        formControlName="metodo"
+        [options]="metodosPago"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="pagoVisible.set(false)"
+    />
+    <p-button
+      label="Registrar"
+      icon="pi pi-check"
+      [loading]="registrandoPago()"
+      (onClick)="registrarPago()"
+    />
+  </ng-template>
 </p-dialog>

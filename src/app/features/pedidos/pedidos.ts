@@ -24,6 +24,8 @@ import {
   Color,
   EstadoPedido,
   Fibra,
+  MetodoPago,
+  Pago,
   Pedido,
   PedidoInput,
   PedidoItemInput,
@@ -34,6 +36,7 @@ import { ClientesService } from '../clientes/clientes.service';
 import { CatalogosService } from '../catalogos/catalogos.service';
 import { ProductosService } from '../productos/productos.service';
 import { PedidosService } from './pedidos.service';
+import { PagosService } from './pagos.service';
 
 type Severidad = 'secondary' | 'info' | 'warn' | 'success';
 
@@ -68,6 +71,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 })
 export class Pedidos implements OnInit {
   private api = inject(PedidosService);
+  private pagosApi = inject(PagosService);
   private clientesApi = inject(ClientesService);
   private productosApi = inject(ProductosService);
   private catalogosApi = inject(CatalogosService);
@@ -92,6 +96,22 @@ export class Pedidos implements OnInit {
   readonly crearVisible = signal(false);
   readonly detalleVisible = signal(false);
   readonly seleccionado = signal<Pedido | null>(null);
+
+  // Pagos del pedido seleccionado.
+  readonly pagoVisible = signal(false);
+  readonly registrandoPago = signal(false);
+
+  readonly metodosPago = [
+    { label: 'Efectivo', value: 'EFECTIVO' },
+    { label: 'Transferencia', value: 'TRANSFERENCIA' },
+    { label: 'Yape', value: 'YAPE' },
+    { label: 'Plin', value: 'PLIN' },
+  ];
+
+  readonly pagoForm = this.fb.nonNullable.group({
+    monto: [0, [Validators.required, Validators.min(0.01)]],
+    metodo: ['EFECTIVO' as MetodoPago, Validators.required],
+  });
 
   // Totales calculados en vivo (vista previa; el oficial lo da el backend).
   readonly totales = signal({ subtotal: 0, igv: 0, total: 0 });
@@ -283,6 +303,97 @@ export class Pedidos implements OnInit {
   verDetalle(p: Pedido) {
     this.seleccionado.set(p);
     this.detalleVisible.set(true);
+    // Trae la versión más reciente (con pagos y saldo actualizados).
+    this.refrescarSeleccionado(p.id);
+  }
+
+  private refrescarSeleccionado(id: string) {
+    this.api.obtener(id).subscribe((fresco) => this.seleccionado.set(fresco));
+  }
+
+  // ── Pagos ──
+  saldoNum(p: Pedido): number {
+    return Number(p.saldo ?? p.total);
+  }
+
+  estadoPago(p: Pedido): 'Pendiente' | 'Parcial' | 'Pagado' {
+    const pagado = Number(p.pagado ?? 0);
+    const total = Number(p.total);
+    if (pagado <= 0) return 'Pendiente';
+    if (pagado < total) return 'Parcial';
+    return 'Pagado';
+  }
+
+  severidadPago(p: Pedido): Severidad {
+    return {
+      Pendiente: 'secondary',
+      Parcial: 'warn',
+      Pagado: 'success',
+    }[this.estadoPago(p)] as Severidad;
+  }
+
+  metodoLabel(metodo: MetodoPago): string {
+    return (
+      this.metodosPago.find((m) => m.value === metodo)?.label ?? metodo
+    );
+  }
+
+  abrirPago() {
+    const p = this.seleccionado();
+    if (!p) return;
+    // Pre-carga el monto con el saldo pendiente.
+    this.pagoForm.reset({ monto: this.saldoNum(p), metodo: 'EFECTIVO' });
+    this.pagoVisible.set(true);
+  }
+
+  registrarPago() {
+    const p = this.seleccionado();
+    if (!p) return;
+    if (this.pagoForm.invalid) {
+      this.pagoForm.markAllAsTouched();
+      return;
+    }
+    this.registrandoPago.set(true);
+    const v = this.pagoForm.getRawValue();
+    this.pagosApi
+      .crear({ pedidoId: p.id, monto: v.monto, metodo: v.metodo })
+      .subscribe({
+        next: () => {
+          this.registrandoPago.set(false);
+          this.pagoVisible.set(false);
+          this.msg.add({ severity: 'success', summary: 'Pago registrado' });
+          this.refrescarSeleccionado(p.id);
+          this.cargar();
+        },
+        error: (err) => {
+          this.registrandoPago.set(false);
+          this.mostrarError(this.textoError(err));
+        },
+      });
+  }
+
+  confirmarAnularPago(pago: Pago) {
+    const p = this.seleccionado();
+    if (!p) return;
+    this.confirm.confirm({
+      header: 'Anular pago',
+      message: `¿Anular el pago de ${pago.monto} (${this.metodoLabel(pago.metodo)})?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Anular',
+      rejectLabel: 'Cancelar',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => {
+        this.pagosApi.eliminar(pago.id).subscribe({
+          next: () => {
+            this.msg.add({ severity: 'success', summary: 'Pago anulado' });
+            this.refrescarSeleccionado(p.id);
+            this.cargar();
+          },
+          error: (err) => this.mostrarError(this.textoError(err)),
+        });
+      },
+    });
   }
 
   estadosSiguientes(estado: EstadoPedido): EstadoPedido[] {
