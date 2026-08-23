@@ -55,6 +55,7 @@ export class Shell {
     { label: 'Clientes', icon: 'pi pi-users', link: '/clientes' },
     { label: 'Productos', icon: 'pi pi-box', link: '/productos' },
     { label: 'Catálogos', icon: 'pi pi-tags', link: '/catalogos' },
+    { label: 'Inventario', icon: 'pi pi-database', link: '/inventario', roles: ['ADMIN', 'PRODUCCION'] },
     { label: 'Sitio web', icon: 'pi pi-globe', link: '/sitio', roles: ['ADMIN'] },
     { label: 'Usuarios', icon: 'pi pi-user', link: '/usuarios', roles: ['ADMIN'] },
   ];

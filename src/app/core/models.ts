@@ -230,6 +230,45 @@ export interface TarjetaProducto {
   activo: boolean;
 }
 
+// ── Inventario / insumos ──
+export type TipoMovimiento = 'ENTRADA' | 'SALIDA';
+
+export interface Movimiento {
+  id: string;
+  insumoId: string;
+  tipo: TipoMovimiento;
+  cantidad: string;
+  referencia: string | null;
+  fecha: string;
+}
+
+export interface Insumo {
+  id: string;
+  nombre: string;
+  tipo: string; // fibra, hilo, etc.
+  unidad: string; // kg, conos, etc.
+  stockActual: string;
+  stockMinimo: string;
+  bajoStock: boolean; // calculado por la API
+  createdAt: string;
+  updatedAt: string;
+  movimientos?: Movimiento[]; // solo en el detalle
+}
+
+export interface InsumoInput {
+  nombre: string;
+  tipo: string;
+  unidad: string;
+  stockMinimo?: number;
+  stockInicial?: number; // solo al crear
+}
+
+export interface MovimientoInput {
+  tipo: TipoMovimiento;
+  cantidad: number;
+  referencia?: string;
+}
+
 // ── Solicitudes de cotización (bandeja) ──
 export type EstadoSolicitud =
   | 'NUEVA'

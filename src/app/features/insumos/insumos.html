@@ -1,0 +1,213 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Inventario</h1>
+    <p class="page-subtitle">Insumos del taller y su stock.</p>
+  </div>
+  @if (puedeGestionar) {
+    <p-button label="Nuevo insumo" icon="pi pi-plus" (onClick)="abrirNuevo()" />
+  }
+</div>
+
+<p-table
+  [value]="insumos()"
+  [loading]="cargando()"
+  [paginator]="insumos().length > 12"
+  [rows]="12"
+  [rowHover]="true"
+  styleClass="p-datatable-sm card-table"
+>
+  <ng-template #header>
+    <tr>
+      <th>Insumo</th>
+      <th>Tipo</th>
+      <th class="r">Stock actual</th>
+      <th class="r">Mínimo</th>
+      <th>Estado</th>
+      <th style="width: 10rem"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-i>
+    <tr [class.fila-alerta]="i.bajoStock">
+      <td><strong>{{ i.nombre }}</strong></td>
+      <td>{{ i.tipo }}</td>
+      <td class="r stock">{{ i.stockActual }} <small>{{ i.unidad }}</small></td>
+      <td class="r">{{ i.stockMinimo }}</td>
+      <td>
+        <p-tag
+          [value]="i.bajoStock ? 'Bajo stock' : 'OK'"
+          [severity]="i.bajoStock ? 'danger' : 'success'"
+        />
+      </td>
+      <td>
+        <div class="acciones">
+          @if (puedeGestionar) {
+            <p-button
+              icon="pi pi-sync"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Registrar movimiento"
+              (onClick)="abrirMovimiento(i)"
+            />
+          }
+          <p-button
+            icon="pi pi-history"
+            severity="secondary"
+            [text]="true"
+            [rounded]="true"
+            pTooltip="Ver movimientos"
+            (onClick)="verHistorial(i)"
+          />
+          @if (puedeGestionar) {
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Editar"
+              (onClick)="abrirEditar(i)"
+            />
+          }
+          @if (puedeEliminar) {
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Eliminar"
+              (onClick)="confirmarEliminar(i)"
+            />
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="vacio-tabla">Aún no hay insumos registrados.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Crear / editar insumo -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-grid">
+    <div class="campo campo-full">
+      <label>Nombre</label>
+      <input pInputText formControlName="nombre" />
+    </div>
+    <div class="campo">
+      <label>Tipo <small>(fibra, hilo…)</small></label>
+      <input pInputText formControlName="tipo" />
+    </div>
+    <div class="campo">
+      <label>Unidad <small>(kg, conos…)</small></label>
+      <input pInputText formControlName="unidad" />
+    </div>
+    <div class="campo">
+      <label>Stock mínimo</label>
+      <p-inputnumber formControlName="stockMinimo" [min]="0" [maxFractionDigits]="2" />
+    </div>
+    @if (!editando()) {
+      <div class="campo">
+        <label>Stock inicial <small>(opcional)</small></label>
+        <p-inputnumber formControlName="stockInicial" [min]="0" [maxFractionDigits]="2" />
+      </div>
+    }
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Guardar" icon="pi pi-check" [loading]="guardando()" (onClick)="guardar()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Registrar movimiento -->
+<p-dialog
+  header="Registrar movimiento"
+  [visible]="movVisible()"
+  (visibleChange)="movVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [draggable]="false"
+>
+  @if (movInsumo(); as i) {
+    <p class="mov-insumo">
+      {{ i.nombre }} · stock actual: <strong>{{ i.stockActual }} {{ i.unidad }}</strong>
+    </p>
+    <form [formGroup]="movForm" (ngSubmit)="registrarMovimiento()" class="form-grid">
+      <div class="campo">
+        <label>Tipo</label>
+        <p-select
+          formControlName="tipo"
+          [options]="tiposMovimiento"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+        />
+      </div>
+      <div class="campo">
+        <label>Cantidad</label>
+        <p-inputnumber formControlName="cantidad" [min]="0.01" [maxFractionDigits]="2" />
+      </div>
+      <div class="campo campo-full">
+        <label>Referencia <small>(opcional)</small></label>
+        <input pInputText formControlName="referencia" placeholder="Ej. Compra proveedor, uso en pedido…" />
+      </div>
+    </form>
+  }
+
+  <ng-template #footer>
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="movVisible.set(false)" />
+    <p-button label="Registrar" icon="pi pi-check" [loading]="registrandoMov()" (onClick)="registrarMovimiento()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Historial de movimientos -->
+<p-dialog
+  [header]="'Movimientos · ' + (histInsumo()?.nombre ?? '')"
+  [visible]="histVisible()"
+  (visibleChange)="histVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '34rem' }"
+  [draggable]="false"
+>
+  @if (histInsumo(); as i) {
+    <p class="mov-insumo">
+      Stock actual: <strong>{{ i.stockActual }} {{ i.unidad }}</strong> · mínimo: {{ i.stockMinimo }}
+    </p>
+    @if (i.movimientos && i.movimientos.length > 0) {
+      <table class="hist">
+        <thead>
+          <tr><th>Fecha</th><th>Tipo</th><th class="r">Cantidad</th><th>Referencia</th></tr>
+        </thead>
+        <tbody>
+          @for (m of i.movimientos; track m.id) {
+            <tr>
+              <td>{{ m.fecha | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <p-tag
+                  [value]="m.tipo === 'ENTRADA' ? 'Entrada' : 'Salida'"
+                  [severity]="m.tipo === 'ENTRADA' ? 'success' : 'warn'"
+                />
+              </td>
+              <td class="r">{{ m.tipo === 'ENTRADA' ? '+' : '−' }}{{ m.cantidad }}</td>
+              <td class="ref">{{ m.referencia || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="vacio-tabla">Sin movimientos todavía.</p>
+    }
+  }
+</p-dialog>
