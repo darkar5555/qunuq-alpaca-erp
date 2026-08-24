@@ -101,6 +101,9 @@ export class Pedidos implements OnInit {
   readonly pagoVisible = signal(false);
   readonly registrandoPago = signal(false);
 
+  // Id del pedido cuya cotización se está descargando (para el spinner).
+  readonly descargandoPdf = signal<string | null>(null);
+
   readonly metodosPago = [
     { label: 'Efectivo', value: 'EFECTIVO' },
     { label: 'Transferencia', value: 'TRANSFERENCIA' },
@@ -309,6 +312,26 @@ export class Pedidos implements OnInit {
 
   private refrescarSeleccionado(id: string) {
     this.api.obtener(id).subscribe((fresco) => this.seleccionado.set(fresco));
+  }
+
+  // Descarga la cotización en PDF y dispara el "guardar archivo" del navegador.
+  descargarCotizacion(p: Pedido) {
+    this.descargandoPdf.set(p.id);
+    this.api.descargarCotizacion(p.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cotizacion-${p.codigo}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.descargandoPdf.set(null);
+      },
+      error: () => {
+        this.descargandoPdf.set(null);
+        this.mostrarError('No se pudo generar el PDF de la cotización');
+      },
+    });
   }
 
   // ── Pagos ──

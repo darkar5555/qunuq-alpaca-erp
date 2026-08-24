@@ -28,6 +28,13 @@ export class PedidosService {
     return this.http.patch<Pedido>(`${this.base}/${id}/estado`, { estado });
   }
 
+  // Descarga la cotización en PDF (la API la genera).
+  descargarCotizacion(id: string) {
+    return this.http.get(`${this.base}/${id}/cotizacion`, {
+      responseType: 'blob',
+    });
+  }
+
   eliminar(id: string) {
     return this.http.delete<{ mensaje: string }>(`${this.base}/${id}`);
   }

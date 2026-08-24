@@ -55,14 +55,27 @@
       </td>
       <td class="col-precio">{{ p.total | currency: 'PEN' : 'S/ ' }}</td>
       <td>
-        <p-button
-          icon="pi pi-eye"
-          severity="secondary"
-          [text]="true"
-          [rounded]="true"
-          pTooltip="Ver detalle"
-          (onClick)="verDetalle(p)"
-        />
+        <div class="acciones-fila">
+          @if (puedeCrear && p.estado === 'COTIZACION') {
+            <p-button
+              icon="pi pi-file-pdf"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Descargar cotización (PDF)"
+              [loading]="descargandoPdf() === p.id"
+              (onClick)="descargarCotizacion(p)"
+            />
+          }
+          <p-button
+            icon="pi pi-eye"
+            severity="secondary"
+            [text]="true"
+            [rounded]="true"
+            pTooltip="Ver detalle"
+            (onClick)="verDetalle(p)"
+          />
+        </div>
       </td>
     </tr>
   </ng-template>
@@ -340,6 +353,17 @@
       }
 
       <div class="detalle-acciones">
+        @if (puedeCrear && p.estado === 'COTIZACION') {
+          <p-button
+            label="Cotización PDF"
+            icon="pi pi-file-pdf"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            [loading]="descargandoPdf() === p.id"
+            (onClick)="descargarCotizacion(p)"
+          />
+        }
         @if (puedeCambiarEstado) {
           @for (e of estadosSiguientes(p.estado); track e) {
             <p-button
