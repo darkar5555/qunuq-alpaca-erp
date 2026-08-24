@@ -55,6 +55,11 @@ export const routes: Routes = [
           import('./features/insumos/insumos').then((m) => m.Insumos),
       },
       {
+        path: 'personal',
+        loadComponent: () =>
+          import('./features/personal/personal').then((m) => m.Personal),
+      },
+      {
         path: 'usuarios',
         loadComponent: () =>
           import('./features/usuarios/usuarios').then((m) => m.Usuarios),

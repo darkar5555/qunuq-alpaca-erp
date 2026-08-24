@@ -269,6 +269,65 @@ export interface MovimientoInput {
   referencia?: string;
 }
 
+// ── Personal del taller y sus pagos ──
+export interface Trabajador {
+  id: string;
+  nombre: string;
+  numeroDocumento: string | null;
+  telefono: string | null;
+  oficio: string;
+  activo: boolean;
+  fechaIngreso: string | null;
+  notas: string | null;
+  createdAt: string;
+  _count?: { pagos: number };
+  pagos?: PagoPersonal[]; // solo en el detalle
+}
+
+export interface TrabajadorInput {
+  nombre: string;
+  oficio: string;
+  numeroDocumento?: string;
+  telefono?: string;
+  fechaIngreso?: string;
+  notas?: string;
+  activo?: boolean;
+}
+
+export interface PagoPersonal {
+  id: string;
+  trabajadorId: string;
+  pedidoId: string | null;
+  monto: string;
+  metodo: MetodoPago;
+  concepto: string;
+  fecha: string;
+  trabajador?: { id: string; nombre: string; oficio: string };
+  pedido?: { id: string; codigo: string } | null;
+}
+
+export interface PagoPersonalInput {
+  monto: number;
+  metodo: MetodoPago;
+  concepto: string;
+  fecha?: string;
+  pedidoId?: string;
+}
+
+export interface ReportePagosPersonal {
+  filtros: { desde?: string; hasta?: string; trabajadorId?: string };
+  cantidad: number;
+  total: string;
+  porMetodo: Partial<Record<MetodoPago, string>>;
+  porTrabajador: {
+    trabajadorId: string;
+    nombre: string;
+    total: string;
+    cantidad: number;
+  }[];
+  pagos: PagoPersonal[];
+}
+
 // ── Solicitudes de cotización (bandeja) ──
 export type EstadoSolicitud =
   | 'NUEVA'

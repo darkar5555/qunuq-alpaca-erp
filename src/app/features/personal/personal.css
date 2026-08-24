@@ -1,0 +1,254 @@
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.head-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Selector de vista (Trabajadores | Reporte) */
+.vista-toggle {
+  display: inline-flex;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vista-toggle button {
+  border: none;
+  background: transparent;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: #6b5f52;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.vista-toggle button.activa {
+  background: var(--marca-terracota);
+  color: #fff;
+  font-weight: 600;
+}
+
+.card-table {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.r {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fila-inactiva {
+  opacity: 0.6;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.15rem;
+  justify-content: flex-end;
+}
+
+.vacio {
+  color: #b3a998;
+}
+
+.vacio-tabla {
+  text-align: center;
+  padding: 2rem;
+  color: #8a7d6f;
+}
+
+/* ── Reporte ── */
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filtros .campo {
+  min-width: 9rem;
+}
+
+.filtros .campo-trab {
+  min-width: 13rem;
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 720px) {
+  .resumen {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tarjeta-resumen {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tarjeta-resumen small {
+  color: #9a8f80;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tarjeta-resumen strong {
+  font-size: 1.3rem;
+}
+
+.tarjeta-resumen.destacada strong {
+  color: var(--marca-terracota);
+}
+
+.chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: var(--marca-crema);
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.8rem;
+  color: #5f5648;
+}
+
+.por-trabajador {
+  margin-top: 1rem;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  max-width: 32rem;
+}
+
+.por-trabajador h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+}
+
+.fila-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #f0e9dd;
+  font-size: 0.92rem;
+}
+
+.fila-total:last-child {
+  border-bottom: none;
+}
+
+.fila-total small {
+  color: #9a8f80;
+}
+
+/* ── Formularios ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.campo label small {
+  color: #9a8f80;
+  font-weight: 400;
+}
+
+.campo input,
+.campo textarea,
+.campo p-select,
+.campo p-inputnumber {
+  width: 100%;
+}
+
+.campo-full {
+  grid-column: 1 / -1;
+}
+
+.pago-para {
+  margin: 0 0 0.5rem;
+  color: #6b5f52;
+  background: #faf7f2;
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+/* ── Historial ── */
+.hist {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.hist th,
+.hist td {
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--gris-borde);
+  text-align: left;
+}
+
+.hist th.r,
+.hist td.r {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.concepto {
+  color: #6b5f52;
+}
+
+.hist-total {
+  text-align: right;
+  margin: 0.75rem 0 0;
+  color: #5f5648;
+}
+
+.hist-total strong {
+  color: var(--marca-terracota);
+  font-size: 1.05rem;
+}

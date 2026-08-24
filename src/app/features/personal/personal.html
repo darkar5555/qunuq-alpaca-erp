@@ -1,0 +1,371 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Personal</h1>
+    <p class="page-subtitle">La gente del taller y sus pagos.</p>
+  </div>
+  <div class="head-acciones">
+    <div class="vista-toggle">
+      <button
+        type="button"
+        [class.activa]="vista() === 'trabajadores'"
+        (click)="cambiarVista('trabajadores')"
+      >
+        <i class="pi pi-users"></i> Trabajadores
+      </button>
+      <button
+        type="button"
+        [class.activa]="vista() === 'reporte'"
+        (click)="cambiarVista('reporte')"
+      >
+        <i class="pi pi-chart-bar"></i> Reporte de pagos
+      </button>
+    </div>
+    @if (vista() === 'trabajadores') {
+      <p-button label="Nuevo trabajador" icon="pi pi-plus" (onClick)="abrirNuevo()" />
+    }
+  </div>
+</div>
+
+<!-- ══ Vista: trabajadores ══ -->
+@if (vista() === 'trabajadores') {
+  <p-table
+    [value]="trabajadores()"
+    [loading]="cargando()"
+    [paginator]="trabajadores().length > 12"
+    [rows]="12"
+    [rowHover]="true"
+    styleClass="p-datatable-sm card-table"
+  >
+    <ng-template #header>
+      <tr>
+        <th>Nombre</th>
+        <th>Oficio</th>
+        <th>Contacto</th>
+        <th class="r">Pagos</th>
+        <th>Estado</th>
+        <th style="width: 11rem"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-t>
+      <tr [class.fila-inactiva]="!t.activo">
+        <td><strong>{{ t.nombre }}</strong></td>
+        <td>{{ t.oficio }}</td>
+        <td>
+          @if (t.telefono) { <span>{{ t.telefono }}</span> } @else { <span class="vacio">—</span> }
+        </td>
+        <td class="r">{{ t._count?.pagos ?? 0 }}</td>
+        <td>
+          <p-tag
+            [value]="t.activo ? 'Activo' : 'Inactivo'"
+            [severity]="t.activo ? 'success' : 'danger'"
+          />
+        </td>
+        <td>
+          <div class="acciones">
+            @if (t.activo) {
+              <p-button
+                icon="pi pi-wallet"
+                severity="secondary"
+                [text]="true"
+                [rounded]="true"
+                pTooltip="Registrar pago"
+                (onClick)="abrirPago(t)"
+              />
+            }
+            <p-button
+              icon="pi pi-history"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Historial de pagos"
+              (onClick)="verHistorial(t)"
+            />
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Editar"
+              (onClick)="abrirEditar(t)"
+            />
+            @if (puedeDesactivar) {
+              @if (t.activo) {
+                <p-button
+                  icon="pi pi-ban"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Desactivar"
+                  (onClick)="confirmarDesactivar(t)"
+                />
+              } @else {
+                <p-button
+                  icon="pi pi-refresh"
+                  severity="success"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Reactivar"
+                  (onClick)="reactivar(t)"
+                />
+              }
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="vacio-tabla">Aún no hay personal registrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+}
+
+<!-- ══ Vista: reporte ══ -->
+@if (vista() === 'reporte') {
+  <div class="filtros" [formGroup]="filtros">
+    <div class="campo">
+      <label>Desde</label>
+      <input pInputText type="date" formControlName="desde" />
+    </div>
+    <div class="campo">
+      <label>Hasta</label>
+      <input pInputText type="date" formControlName="hasta" />
+    </div>
+    <div class="campo campo-trab">
+      <label>Trabajador</label>
+      <p-select
+        formControlName="trabajadorId"
+        [options]="trabajadorOpciones()"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+    <p-button label="Buscar" icon="pi pi-search" (onClick)="buscarReporte()" [loading]="cargandoReporte()" />
+    <p-button
+      label="PDF"
+      icon="pi pi-file-pdf"
+      severity="secondary"
+      [outlined]="true"
+      [loading]="descargandoPdf()"
+      (onClick)="descargarPdf()"
+    />
+    <p-button
+      label="CSV"
+      icon="pi pi-file-excel"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="!reporte()"
+      (onClick)="descargarCsv()"
+    />
+  </div>
+
+  @if (reporte(); as r) {
+    <div class="resumen">
+      <div class="tarjeta-resumen destacada">
+        <small>Total pagado</small>
+        <strong>S/ {{ r.total }}</strong>
+      </div>
+      <div class="tarjeta-resumen">
+        <small>N° de pagos</small>
+        <strong>{{ r.cantidad }}</strong>
+      </div>
+      <div class="tarjeta-resumen metodos">
+        <small>Por método</small>
+        <div class="chips">
+          @for (m of metodosResumen(); track m.label) {
+            <span class="chip">{{ m.label }}: S/ {{ m.monto }}</span>
+          }
+          @if (metodosResumen().length === 0) { <span class="vacio">—</span> }
+        </div>
+      </div>
+    </div>
+
+    <p-table [value]="r.pagos" [rowHover]="true" styleClass="p-datatable-sm card-table">
+      <ng-template #header>
+        <tr>
+          <th>Fecha</th>
+          <th>Trabajador</th>
+          <th>Concepto</th>
+          <th>Pedido</th>
+          <th>Método</th>
+          <th class="r">Monto</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-p>
+        <tr>
+          <td>{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ p.trabajador?.nombre }}</td>
+          <td class="concepto">{{ p.concepto }}</td>
+          <td>{{ p.pedido?.codigo ?? '—' }}</td>
+          <td>{{ metodoLabel(p.metodo) }}</td>
+          <td class="r">S/ {{ p.monto }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="vacio-tabla">No hay pagos en el periodo seleccionado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    @if (r.porTrabajador.length > 0) {
+      <div class="por-trabajador">
+        <h3>Total por trabajador</h3>
+        @for (t of r.porTrabajador; track t.trabajadorId) {
+          <div class="fila-total">
+            <span>{{ t.nombre }} <small>({{ t.cantidad }} pago{{ t.cantidad === 1 ? '' : 's' }})</small></span>
+            <strong>S/ {{ t.total }}</strong>
+          </div>
+        }
+      </div>
+    }
+  }
+}
+
+<!-- ── Crear / editar trabajador ── -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-grid">
+    <div class="campo campo-full">
+      <label>Nombre</label>
+      <input pInputText formControlName="nombre" />
+    </div>
+    <div class="campo">
+      <label>Oficio <small>(tejedora, acabados…)</small></label>
+      <input pInputText formControlName="oficio" />
+    </div>
+    <div class="campo">
+      <label>DNI <small>(opcional)</small></label>
+      <input pInputText formControlName="numeroDocumento" inputmode="numeric" />
+    </div>
+    <div class="campo">
+      <label>Teléfono <small>(opcional)</small></label>
+      <input pInputText formControlName="telefono" />
+    </div>
+    <div class="campo">
+      <label>Fecha de ingreso <small>(opcional)</small></label>
+      <input pInputText type="date" formControlName="fechaIngreso" />
+    </div>
+    <div class="campo campo-full">
+      <label>Notas <small>(opcional)</small></label>
+      <textarea pTextarea formControlName="notas" rows="2"></textarea>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Guardar" icon="pi pi-check" [loading]="guardando()" (onClick)="guardar()" />
+  </ng-template>
+</p-dialog>
+
+<!-- ── Registrar pago ── -->
+<p-dialog
+  header="Registrar pago"
+  [visible]="pagoVisible()"
+  (visibleChange)="pagoVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  @if (pagoTrabajador(); as t) {
+    <p class="pago-para">Pago para <strong>{{ t.nombre }}</strong> ({{ t.oficio }})</p>
+    <form [formGroup]="pagoForm" (ngSubmit)="registrarPago()" class="form-grid">
+      <div class="campo">
+        <label>Monto (S/)</label>
+        <p-inputnumber formControlName="monto" [min]="0.01" [maxFractionDigits]="2" mode="currency" currency="PEN" locale="es-PE" />
+      </div>
+      <div class="campo">
+        <label>Método</label>
+        <p-select formControlName="metodo" [options]="metodos" optionLabel="label" optionValue="value" appendTo="body" />
+      </div>
+      <div class="campo campo-full">
+        <label>Concepto</label>
+        <input pInputText formControlName="concepto" placeholder="Ej. Semana 18–24 ago, adelanto, por 3 chompas…" />
+      </div>
+      <div class="campo">
+        <label>Fecha <small>(vacío = hoy)</small></label>
+        <input pInputText type="date" formControlName="fecha" />
+      </div>
+      <div class="campo">
+        <label>Pedido <small>(opcional)</small></label>
+        <p-select
+          formControlName="pedidoId"
+          [options]="pedidoOpciones()"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          appendTo="body"
+        />
+      </div>
+    </form>
+  }
+
+  <ng-template #footer>
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="pagoVisible.set(false)" />
+    <p-button label="Registrar pago" icon="pi pi-check" [loading]="registrandoPago()" (onClick)="registrarPago()" />
+  </ng-template>
+</p-dialog>
+
+<!-- ── Historial de pagos ── -->
+<p-dialog
+  [header]="'Pagos · ' + (histTrabajador()?.nombre ?? '')"
+  [visible]="histVisible()"
+  (visibleChange)="histVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '38rem' }"
+  [draggable]="false"
+>
+  @if (histTrabajador(); as t) {
+    @if (t.pagos && t.pagos.length > 0) {
+      <table class="hist">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Pedido</th>
+            <th>Método</th>
+            <th class="r">Monto</th>
+            @if (puedeAnular) { <th></th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of t.pagos; track p.id) {
+            <tr>
+              <td>{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
+              <td class="concepto">{{ p.concepto }}</td>
+              <td>{{ p.pedido?.codigo ?? '—' }}</td>
+              <td>{{ metodoLabel(p.metodo) }}</td>
+              <td class="r">S/ {{ p.monto }}</td>
+              @if (puedeAnular) {
+                <td>
+                  <p-button
+                    icon="pi pi-times"
+                    severity="danger"
+                    [text]="true"
+                    [rounded]="true"
+                    size="small"
+                    pTooltip="Anular pago"
+                    (onClick)="confirmarAnularPago(p)"
+                  />
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p class="hist-total">Total pagado: <strong>S/ {{ totalHistorial(t) | number: '1.2-2' }}</strong></p>
+    } @else {
+      <p class="vacio-tabla">Sin pagos registrados todavía.</p>
+    }
+  }
+</p-dialog>
