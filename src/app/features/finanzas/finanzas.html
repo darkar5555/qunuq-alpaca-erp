@@ -1,0 +1,243 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Finanzas</h1>
+    <p class="page-subtitle">Gastos fijos (pasivos), variables (activos) y utilidad del negocio.</p>
+  </div>
+  <div class="head-acciones">
+    <div class="vista-toggle">
+      <button
+        type="button"
+        [class.activa]="vista() === 'gastos'"
+        (click)="cambiarVista('gastos')"
+      >
+        <i class="pi pi-wallet"></i> Gastos
+      </button>
+      <button
+        type="button"
+        [class.activa]="vista() === 'resumen'"
+        (click)="cambiarVista('resumen')"
+      >
+        <i class="pi pi-chart-line"></i> Resumen financiero
+      </button>
+    </div>
+    @if (vista() === 'gastos') {
+      <p-button label="Nuevo gasto" icon="pi pi-plus" (onClick)="abrirNuevo()" />
+    }
+  </div>
+</div>
+
+<!-- ══ Vista: gastos ══ -->
+@if (vista() === 'gastos') {
+  <div class="filtros" [formGroup]="filtros">
+    <div class="campo">
+      <label>Desde</label>
+      <input pInputText type="date" formControlName="desde" />
+    </div>
+    <div class="campo">
+      <label>Hasta</label>
+      <input pInputText type="date" formControlName="hasta" />
+    </div>
+    <div class="campo">
+      <label>Tipo</label>
+      <p-select
+        formControlName="tipo"
+        [options]="[{ label: 'Todos', value: '' }].concat(tipos)"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+    <div class="campo">
+      <label>Categoría</label>
+      <p-select
+        formControlName="categoria"
+        [options]="[{ label: 'Todas', value: '' }].concat(categorias)"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      />
+    </div>
+    <p-button label="Buscar" icon="pi pi-search" [loading]="cargando()" (onClick)="buscar()" />
+    <p-button label="PDF" icon="pi pi-file-pdf" severity="secondary" [outlined]="true" [loading]="descargandoPdf()" (onClick)="descargarPdf()" />
+    <p-button label="CSV" icon="pi pi-file-excel" severity="secondary" [outlined]="true" [disabled]="!reporte()" (onClick)="descargarCsv()" />
+  </div>
+
+  @if (reporte(); as r) {
+    <div class="resumen-cards">
+      <div class="tarjeta destacada">
+        <small>Total gastado</small>
+        <strong>S/ {{ r.total }}</strong>
+      </div>
+      <div class="tarjeta">
+        <small>Fijos (pasivos)</small>
+        <strong>S/ {{ r.porTipo.FIJO ?? '0' }}</strong>
+      </div>
+      <div class="tarjeta">
+        <small>Variables (activos)</small>
+        <strong>S/ {{ r.porTipo.VARIABLE ?? '0' }}</strong>
+      </div>
+      <div class="tarjeta categorias">
+        <small>Por categoría</small>
+        <div class="chips">
+          @for (c of r.porCategoria; track c.categoria) {
+            <span class="chip">{{ c.categoria }}: S/ {{ c.monto }}</span>
+          }
+          @if (r.porCategoria.length === 0) { <span class="vacio">—</span> }
+        </div>
+      </div>
+    </div>
+
+    <p-table [value]="r.gastos" [loading]="cargando()" [rowHover]="true" [paginator]="r.gastos.length > 12" [rows]="12" styleClass="p-datatable-sm card-table">
+      <ng-template #header>
+        <tr>
+          <th>Fecha</th>
+          <th>Categoría</th>
+          <th>Descripción</th>
+          <th>Tipo</th>
+          <th>Método</th>
+          <th class="r">Monto</th>
+          <th style="width: 6.5rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-g>
+        <tr>
+          <td>{{ g.fecha | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ g.categoria }}</td>
+          <td class="descripcion">
+            {{ g.descripcion }}
+            @if (g.proveedor) { <small>· {{ g.proveedor }}</small> }
+          </td>
+          <td>
+            <p-tag
+              [value]="g.tipo === 'FIJO' ? 'Fijo' : 'Variable'"
+              [severity]="g.tipo === 'FIJO' ? 'warn' : 'info'"
+            />
+          </td>
+          <td>{{ metodoLabel(g.metodo) }}</td>
+          <td class="r">S/ {{ g.monto }}</td>
+          <td>
+            <div class="acciones">
+              <p-button icon="pi pi-pencil" severity="secondary" [text]="true" [rounded]="true" pTooltip="Editar" (onClick)="abrirEditar(g)" />
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" pTooltip="Eliminar" (onClick)="confirmarEliminar(g)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="vacio-tabla">No hay gastos en el periodo seleccionado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+}
+
+<!-- ══ Vista: resumen financiero ══ -->
+@if (vista() === 'resumen') {
+  @if (cargandoResumen()) {
+    <p class="vacio-tabla">Cargando resumen…</p>
+  }
+  @if (resumen(); as r) {
+    @if (mesActual(); as m) {
+      <div class="resumen-cards">
+        <div class="tarjeta ingreso">
+          <small>Ingresos ({{ mesLabel(m.mes) }})</small>
+          <strong>S/ {{ m.ingresos }}</strong>
+        </div>
+        <div class="tarjeta egreso">
+          <small>Egresos ({{ mesLabel(m.mes) }})</small>
+          <strong>S/ {{ m.egresos }}</strong>
+        </div>
+        <div class="tarjeta" [class.positiva]="utilidadNum(m.utilidad) >= 0" [class.negativa]="utilidadNum(m.utilidad) < 0">
+          <small>Utilidad ({{ mesLabel(m.mes) }})</small>
+          <strong>S/ {{ m.utilidad }}</strong>
+        </div>
+      </div>
+    }
+
+    <div class="grafico-card">
+      <h3>Ingresos vs egresos — últimos 6 meses</h3>
+      <div class="grafico">
+        <p-chart type="bar" [data]="chartResumen()" [options]="opcionesChart" />
+      </div>
+    </div>
+
+    <p-table [value]="r.meses" styleClass="p-datatable-sm card-table tabla-meses">
+      <ng-template #header>
+        <tr>
+          <th>Mes</th>
+          <th class="r">Ingresos</th>
+          <th class="r">G. fijos</th>
+          <th class="r">G. variables</th>
+          <th class="r">Personal</th>
+          <th class="r">Egresos</th>
+          <th class="r">Utilidad</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-m>
+        <tr>
+          <td>{{ mesLabel(m.mes) }}</td>
+          <td class="r">S/ {{ m.ingresos }}</td>
+          <td class="r">S/ {{ m.gastosFijos }}</td>
+          <td class="r">S/ {{ m.gastosVariables }}</td>
+          <td class="r">S/ {{ m.pagosPersonal }}</td>
+          <td class="r">S/ {{ m.egresos }}</td>
+          <td class="r utilidad" [class.neg]="utilidadNum(m.utilidad) < 0">
+            S/ {{ m.utilidad | number: '1.2-2' }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p class="nota-resumen">
+      <i class="pi pi-info-circle"></i>
+      Ingresos = pagos de clientes · Egresos = gastos (fijos + variables) + pagos al personal.
+    </p>
+  }
+}
+
+<!-- ── Crear / editar gasto ── -->
+<p-dialog
+  [header]="tituloDialog()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-grid">
+    <div class="campo">
+      <label>Monto (S/)</label>
+      <p-inputnumber formControlName="monto" [min]="0.01" [maxFractionDigits]="2" mode="currency" currency="PEN" locale="es-PE" />
+    </div>
+    <div class="campo">
+      <label>Método</label>
+      <p-select formControlName="metodo" [options]="metodos" optionLabel="label" optionValue="value" appendTo="body" />
+    </div>
+    <div class="campo">
+      <label>Tipo</label>
+      <p-select formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value" appendTo="body" />
+    </div>
+    <div class="campo">
+      <label>Categoría</label>
+      <p-select formControlName="categoria" [options]="categorias" optionLabel="label" optionValue="value" appendTo="body" />
+    </div>
+    <div class="campo campo-full">
+      <label>Descripción</label>
+      <input pInputText formControlName="descripcion" placeholder="Ej. Alquiler del taller, compra de fibra…" />
+    </div>
+    <div class="campo">
+      <label>Proveedor <small>(opcional)</small></label>
+      <input pInputText formControlName="proveedor" />
+    </div>
+    <div class="campo">
+      <label>Fecha <small>(vacío = hoy)</small></label>
+      <input pInputText type="date" formControlName="fecha" />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Guardar" icon="pi pi-check" [loading]="guardando()" (onClick)="guardar()" />
+  </ng-template>
+</p-dialog>

@@ -328,6 +328,54 @@ export interface ReportePagosPersonal {
   pagos: PagoPersonal[];
 }
 
+// ── Gastos y finanzas ──
+export type TipoGasto = 'FIJO' | 'VARIABLE';
+
+export interface Gasto {
+  id: string;
+  fecha: string;
+  monto: string;
+  metodo: MetodoPago;
+  tipo: TipoGasto;
+  categoria: string;
+  descripcion: string;
+  proveedor: string | null;
+}
+
+export interface GastoInput {
+  monto: number;
+  metodo: MetodoPago;
+  tipo: TipoGasto;
+  categoria: string;
+  descripcion: string;
+  proveedor?: string;
+  fecha?: string;
+}
+
+export interface ReporteGastos {
+  filtros: { desde?: string; hasta?: string; tipo?: TipoGasto; categoria?: string };
+  cantidad: number;
+  total: string;
+  porTipo: Partial<Record<TipoGasto, string>>;
+  porCategoria: { categoria: string; monto: string }[];
+  gastos: Gasto[];
+}
+
+export interface MesFinanciero {
+  mes: string; // YYYY-MM
+  ingresos: string;
+  gastosFijos: string;
+  gastosVariables: string;
+  pagosPersonal: string;
+  egresos: string;
+  utilidad: string;
+}
+
+export interface ResumenFinanciero {
+  meses: MesFinanciero[];
+  totales: Omit<MesFinanciero, 'mes'>;
+}
+
 // ── Solicitudes de cotización (bandeja) ──
 export type EstadoSolicitud =
   | 'NUEVA'
